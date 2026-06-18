@@ -1,0 +1,38 @@
+body{
+    background:#f4f7fc;
+}
+
+.card{
+    border:none;
+    border-radius:18px;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+}
+
+.shadow{
+    box-shadow:0px 8px 20px rgba(0,0,0,0.1)!important;
+}
+
+.table{
+    border-radius:15px;
+    overflow:hidden;
+}
+
+.navbar-brand{
+    font-size:1.4rem;
+}
+
+.card-body h2{
+    font-weight:700;
+}
+
+.btn-success{
+    border-radius:10px;
+}
+.table thead{
+    background:#212529;
+    color:white;
+}
