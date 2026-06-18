@@ -1,13 +1,23 @@
 import pandas as pd
+import os
 import plotly.express as px
 from flask import Flask, render_template, request
 import joblib
 app = Flask(__name__)
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 rf = joblib.load(
-    'storage_tier_model.joblib'
+    os.path.join(
+        BASE_DIR,
+        'storage_tier_model.joblib'
+    )
 )
 df = pd.read_csv(
-    'storage_dataset.csv'
+    os.path.join(
+        BASE_DIR,
+        'storage_dataset.csv'
+    )
 )
 total_files = len(df)
 cold_files = len(
