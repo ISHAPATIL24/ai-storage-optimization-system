@@ -183,7 +183,7 @@ def analyze_file(
         "Recommendation": recommendation,
         "Estimated Monthly Savings": monthly_savings
     }
-
+'''
 @app.route('/predict', methods=['POST'])
 def predict():
 
@@ -209,6 +209,7 @@ def predict():
     'result.html',
     result=result
 )
+'''
 @app.route('/upload', methods=['POST'])
 def upload():
 
@@ -398,9 +399,14 @@ def upload():
 def download():
 
     return send_file(
-        'analysis_report.csv',
-        as_attachment=True
-    )   
+    os.path.join(
+        BASE_DIR,
+        'analysis_report.csv'
+    ),
+    as_attachment=True
+)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
