@@ -1,8 +1,9 @@
 import pandas as pd
 import os
 import plotly.express as px
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import joblib
+from datetime import datetime
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
@@ -208,6 +209,198 @@ def predict():
     'result.html',
     result=result
 )
+@app.route('/upload', methods=['POST'])
+def upload():
+
+    uploaded_file = request.files['csv_file']
+
+    df_uploaded = pd.read_csv(
+        uploaded_file
+    )
+
+    df_uploaded['storage_tier'] = rf.predict(
+
+        df_uploaded[
+            [
+                'file_size_mb',
+                'access_frequency',
+                'days_since_last_access'
+            ]
+        ]
+
+    )
+
+    total_files = len(df_uploaded)
+
+    cold_files = len(
+        df_uploaded[
+            df_uploaded['storage_tier'] == 'Cold'
+        ]
+    )
+
+    total_storage_mb = (
+        df_uploaded['file_size_mb']
+        .sum()
+    )
+
+    storage_tb = round(
+        total_storage_mb / (1024 * 1024),
+        2
+    )
+    monthly_savings = round(
+
+    (
+        df_uploaded['file_size_mb']
+        * 0.08
+    ).sum(),
+
+    2
+
+)
+
+    analysis_time = datetime.now().strftime(
+        "%d-%m-%Y %H:%M"
+    )
+
+
+
+
+    cost_data = pd.DataFrame({
+
+        'Category': [
+            'Current Cost',
+            'Optimized Cost'
+        ],
+
+        'Amount': [
+            monthly_savings / 0.8,
+            (monthly_savings / 0.8) - monthly_savings
+        ]
+
+    })
+
+    cost_fig = px.bar(
+
+        cost_data,
+
+        x='Category',
+
+        y='Amount',
+
+        title='Cost Analysis'
+
+    )
+
+    cost_chart = cost_fig.to_html(
+        full_html=False
+    )
+
+    df_uploaded['priority_score'] = (
+        df_uploaded['file_size_mb']
+        *
+        df_uploaded['days_since_last_access']
+    ) / (
+        df_uploaded['access_frequency'] + 1
+    )
+
+    archive_candidates = (
+        df_uploaded[
+            df_uploaded['storage_tier'] == 'Cold'
+        ]
+        .sort_values(
+            by='priority_score',
+            ascending=False
+        )
+        .head(10)
+    )
+
+
+    df_uploaded['recommendation'] = (
+        df_uploaded['storage_tier']
+        .apply(
+            lambda x:
+            "Archive Immediately"
+            if x == "Cold"
+            else "Keep Active"
+        )
+    )
+
+
+    tier_counts = (
+        df_uploaded['storage_tier']
+        .value_counts()
+        .reset_index()
+    )
+
+    tier_counts.columns = [
+        'Storage Tier',
+        'Count'
+    ]
+
+    fig = px.pie(
+        tier_counts,
+        names='Storage Tier',
+        values='Count',
+        title='Storage Tier Distribution'
+    )
+
+    storage_chart = fig.to_html(
+        full_html=False
+    )
+
+
+
+    report_name = (
+        'analysis_report.csv'
+    )
+
+    df_uploaded.to_csv(
+        report_name,
+        index=False
+    )
+    hot_files = len(
+        df_uploaded[
+            df_uploaded['storage_tier'] == 'Hot'
+        ]
+    )
+
+    warm_files = len(
+        df_uploaded[
+            df_uploaded['storage_tier'] == 'Warm'
+        ]
+    )
+
+    return render_template(
+
+        'dashboard.html',
+
+        total_files=total_files,
+
+        cold_files=cold_files,
+
+        storage_tb=storage_tb,
+
+        monthly_savings=monthly_savings,
+
+        storage_chart=storage_chart,
+
+        archive_candidates=archive_candidates,
+
+        cost_chart=cost_chart,
+
+        hot_files=hot_files,
+        warm_files=warm_files,
+        analysis_time=analysis_time
+
+    )
+
+@app.route('/download')
+def download():
+
+    return send_file(
+        'analysis_report.csv',
+        as_attachment=True
+    )   
 
 if __name__ == '__main__':
     app.run(debug=True)

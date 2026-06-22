@@ -233,50 +233,39 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
                 <div class="card-body">
     
                     <h4>Smart File Analyzer</h4>
-    
-                    <form method="POST" action="/predict">
-                  
-    
-                        <div class="row">
-    
-                            <div class="col-md-4">
-                                <label>File Size (MB)</label>
-                                <input type="number"
-       class="form-control"
-       name="file_size"
-       placeholder="Enter file size"
-       required>
-                            </div>
-    
-                            <div class="col-md-4">
-                                <label>Access Frequency</label>
-                                <input type="number"
-       class="form-control"
-       name="access_frequency"
-       placeholder="Accesses per month"
-       required>
-                            </div>
-    
-                            <div class="col-md-4">
-                                <label>Days Since Last Access</label>
-                                <input type="number"
-       class="form-control"
-       name="days_since_last_access"
-       placeholder="Days"
-       required>
-                            </div>
-    
+                    <form
+                    method="POST"
+                    action="/upload"
+                    enctype="multipart/form-data">
+                
+                    <div class="row">
+                
+                        <div class="col-md-12">
+                
+                            <label>
+                                Upload CSV File
+                            </label>
+                
+                            <input
+                                type="file"
+                                class="form-control"
+                                name="csv_file"
+                                accept=".csv"
+                                required>
+                
                         </div>
-    
-                        <button
+                
+                    </div>
+                
+                    <button
                         class="btn btn-success btn-lg mt-4"
-                            type="submit">
-    
-                            Analyze File
-    
-                        </button>
-    
-                    </form>
+                        type="submit">
+                
+                        Analyze Dataset
+                
+                    </button>
+                
+                </form>
     
                 </div>
     
